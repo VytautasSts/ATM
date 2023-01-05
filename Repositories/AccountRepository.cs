@@ -7,17 +7,17 @@ using ATM.Models;
 
 namespace ATM.Repositories
 {
-    public class CardsRepository
+    public class AccountRepository
     {
-        private readonly List<Card> _cards = new List<Card>();
+        private readonly List<Account> _accounts = new List<Account>();
 
-        public void AddCard(Guid id, string number, DateOnly validity, bool blocked)
+        public void AddAccount(Guid id, string number, double balance )
         {
-            _cards.Add(new Card(id, number, validity, blocked));
+            _accounts.Add(new Account(id, number, balance));
         }
-        public List<Card> GetCards()
+        public List<Account> GetCards()
         {
-            return _cards;
+            return _accounts;
         }
     }
 }

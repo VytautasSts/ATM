@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SQLite;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -11,10 +12,10 @@ namespace ATM
     class Program
     {
         static void Main(string[] args)
-        {
+        { 
             Startup.Initiate();
-            
             HTMLGenerator.GenerateHTML();
         }
+        
     }
 }
