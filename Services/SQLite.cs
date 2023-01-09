@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using ATM.Models;
@@ -12,53 +13,62 @@ namespace ATM.Services
 {
     public class SQLite
     {
-        public static SQLiteConnection Conn = CreateConnection();
+        public SQLiteConnection Conn { get; set; }
         public SQLite()
         {
-            if(Conn == null) CreateTable(Conn);            
+            Conn = CreateConnection();
+            CreateTable(Conn);            
         }
-        public static SQLiteConnection CreateConnection()
+        public SQLiteConnection CreateConnection()
         {
-            SQLiteConnection conn = new SQLiteConnection("Data Source = database.sqlite; version = 3; New = true; Compress = true;");
-            try { conn.Open(); }
-            catch { }
-            return conn;
+            
+            Conn = new SQLiteConnection("Data Source = database.sqlite; version = 3; New = true; Compress = true;");
+            try {Conn.Open();}
+            catch { };
+            return Conn;
         }
-        private static void CreateTable(SQLiteConnection conn)
+        public void CreateTable(SQLiteConnection conn)
         {
             SQLiteCommand command;
-            string createSQL = "CREATE TABLE BankData(" +
-                " Guid BLOB(40)," +
-                " Name TEXT(20)," +
-                " Last_Name TEXT(20)," +
-                " Account_Number TEXT(20)," +
-                " Balance REAL(20)," +
-                " Card_number TEXT(20)," +
-                " Validity_Date BLOB(20)," +
-                " Blocked BLOB(20))";
             command = conn.CreateCommand();
-            command.CommandText = createSQL;
+            command.CommandText = "CREATE TABLE IF NOT EXISTS BankData("+
+                "Guid BLOB PRIMARY KEY," +
+                "Name TEXT(20)," +
+                "Last_Name TEXT(20)," +
+                "Account_Number TEXT(20)," +
+                "Balance REAL," +
+                "Card_number TEXT(20)," +
+                "Validity_Date BLOB," +
+                "Blocked BLOB);";
             command.ExecuteNonQuery();
         }
-        public static void InsertData(SQLiteConnection conn, SQLentry entry)
+        public bool CheckIfTableEmpty(SQLiteConnection conn, string table_name)
         {
             SQLiteCommand command = conn.CreateCommand();
-            string commandText = "INSERT INTO BankData (Guid, Name, Last_name, Account_number, Balance, Card_number, Validity_date, Blocked) ";
-            commandText += string.Format("VALUES (@{0},@{1},@{2},@{3},@{4},@{5},@{6},@{7})",
-                        entry.ClientID,entry.Name,entry.LastName,entry.AccountNumber,entry.Balance,entry.CardNumber,entry.ValidityDate,entry.Blocked);
-            try
-            {
-                command.ExecuteNonQuery();
-            }
-            catch
-            {
-            }
+            command.CommandText = $"SELECT COUNT(*) FROM {table_name}";
+            bool empty = true;
+            var size = command.ExecuteNonQuery() ;
+            if (size > 0) empty = false;
+            return empty;
         }
-        public static void ReadData(SQLiteConnection conn)
+        public void DeleteData(SQLiteConnection conn, string table_name)
+        {
+            SQLiteCommand command = conn.CreateCommand();
+            command.CommandText = $"DELETE FROM {table_name}";
+            command.ExecuteNonQuery();
+        }
+        public void InsertData(SQLiteConnection conn, SQLentry e)
+        {
+            SQLiteCommand command = conn.CreateCommand();
+            command.CommandText = $"INSERT INTO BankData(Guid, Name, Last_name, Account_number, Balance, Card_number, Validity_date, Blocked) " +
+                $"VALUES ('{e.ClientID}','{e.Name}','{e.LastName}','{e.AccountNumber}','{e.Balance}','{e.CardNumber}','{e.ValidityDate}','{e.Blocked}');";
+            command.ExecuteNonQuery();
+        }
+        public void ReadData(SQLiteConnection conn)
         {
             SQLiteDataReader reader;
             SQLiteCommand command = conn.CreateCommand();
-            command.CommandText = "SELECT * FROM BankData";
+            command.CommandText = "SELECT Guid, Name, Last_name, Account_number, Balance, Card_number, Validity_date, Blocked FROM BankData";
             reader = command.ExecuteReader();
             while (reader.Read())
             {
