@@ -17,7 +17,8 @@ namespace ATM.Models
         public string CardNumber { get; }
         public DateOnly ValidityDate { get; }
         public bool Blocked { get; set; }
-        public SQLentry(Guid id,string name, string lastname, string accountnumber, double balance,string cardnumber, DateOnly validitydate,bool blocked)
+        public string PIN { get; }
+        public SQLentry(Guid id,string name, string lastname, string accountnumber, double balance,string cardnumber, DateOnly validitydate,bool blocked, string pin)
         {
             ClientID = id;
             Name = name;
@@ -27,6 +28,7 @@ namespace ATM.Models
             CardNumber= cardnumber;
             ValidityDate = validitydate;
             Blocked= blocked;
+            PIN = pin;
         }
     }
 }

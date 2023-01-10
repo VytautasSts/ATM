@@ -21,5 +21,9 @@ namespace ATM.Services
             if(GUIDlist.Contains(id)) { result = true; }
             return result;
         }
+        public static List<Guid> GetGUIDList()
+        {
+            return GUIDlist;
+        }
     }
 }
