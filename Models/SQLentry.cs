@@ -13,7 +13,7 @@ namespace ATM.Models
         public string Name { get; }
         public string LastName { get; }
         public string AccountNumber { get; }
-        public double Balance { get; }
+        public double Balance { get; set; }
         public string CardNumber { get; }
         public DateOnly ValidityDate { get; }
         public bool Blocked { get; set; }

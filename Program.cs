@@ -20,9 +20,11 @@ namespace ATM
             HTMLGenerator.GenerateHTML();
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine("Insert Card");
-                Guid cardInserted = new Guid(Console.ReadLine());
+                Guid cardInserted = new Guid(Console.ReadLine());//request for Guid
                 Console.WriteLine("Card inserted. Please wait...");
+                var q = 0;
                 bool cardHolderInternal = false;
                 var attempt = 3;
                 var authenticated = false;
@@ -32,6 +34,8 @@ namespace ATM
                 {
                     Console.Clear();
                     Console.WriteLine("Card blocked. Please contact your bank!");
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
                 }
                 else
                 {
@@ -61,16 +65,24 @@ namespace ATM
                                 Console.WriteLine("Card blocked. Please contact your bank!");
                                 currentUser.Blocked = true;
                                 sqlite.UpdateBankData(sqlite.Conn, currentUser);
+                                q = 1;
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
                                 break;
                             }
                         }
                     }
                     while (true)
                     {
-                        var q = 0;
+                        
                         if (authenticated)
                         {
-                            if (currentUser.Blocked) Console.WriteLine("Card blocked. Please contact your bank!");
+                            if (currentUser.Blocked)
+                            {
+                                Console.WriteLine("Card blocked. Please contact your bank!");
+                                Console.WriteLine("Press any key to continue...");
+                                Console.ReadKey();
+                            }
                             else
                             {
                                 while (true)
@@ -102,6 +114,7 @@ namespace ATM
                                             {
                                                 Console.Clear();
                                                 Console.WriteLine("Withdraw cash :"); //Withdraw cash
+                                                Withdraw.cash(currentUser, cardHolderInternal, sqlite);
                                                 Console.WriteLine("Press any key to continue...");
                                                 Console.ReadKey();
                                                 break;

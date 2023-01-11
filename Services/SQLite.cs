@@ -92,6 +92,8 @@ namespace ATM.Services
             command.CommandText = $"INSERT INTO Transactions(Name, Last_name, Account_number, Amount, Time) " +
                 $"VALUES ('{e.Name}','{e.LastName}','{e.AccountNumber}','{e.Amount}','{e.Time}');";
             command.ExecuteNonQuery();
+            command.CommandText = $"SELECT * FROM Transactions ORDER BY Time DESC LIMIT 0, 49999";
+            command.ExecuteNonQuery();
         }
         public void ReadBankData(SQLiteConnection conn, int col)
         {
@@ -133,21 +135,26 @@ namespace ATM.Services
 
             SQLiteDataReader reader;
             SQLiteCommand command = conn.CreateCommand();
-            command.CommandText = $"SELECT * FROM Transactions WHERE Account_number='{accnum}'";
+            command.CommandText = $"SELECT * FROM Transactions WHERE Account_number='{accnum}' ORDER BY Time DESC LIMIT 0, 49999;";
             reader = command.ExecuteReader();
-            for(int i=0; i<reader.StepCount; i++)
+            var list = new List <Transaction>();
+            while (reader.Read())
             {
-                while (reader.Read())
-                {
-
-                    var name = reader.GetString(0);
-                    var lastname = reader.GetString(1);
-                    var accountnumber = reader.GetString(2);
-                    double amount = reader.GetDouble(3);
-                    DateTime time = DateTime.Parse(reader.GetString(4));
-                    Console.WriteLine(string.Format("{0,25},{0,25},{0,25},{0,25},{0,25}", name, lastname, accountnumber, amount, time));
-                }
+                var name = reader.GetString(0);
+                var lastname = reader.GetString(1);
+                var accountnumber = reader.GetString(2);
+                double amount = reader.GetDouble(3);
+                DateTime time = DateTime.Parse(reader.GetString(4));
+                list.Add(new (name, lastname, accountnumber, amount, time));
             }
+            Console.WriteLine(string.Format("|{0,-20}|{1,-20}|{2,-20}|{3,-20}|{4,-20}|", "Vardas", "Pavardė", "Sąskaitos numeris","Suma","Data"));
+            Console.WriteLine(string.Format("|{0,-20}|{0,-20}|{0,-20}|{0,-20}|{0,-20}|","********************"));
+            for (int i=0; i < 5; i++)
+            {
+                var current = list[i];
+                Console.WriteLine(string.Format("|{0,-20}|{1,-20}|{2,-20}|{3,-20}|{4,-20}|", current.Name, current.LastName, current.AccountNumber, current.Amount, current.Time));
+            }
+            Console.WriteLine(string.Format("|{0,-20}|{0,-20}|{0,-20}|{0,-20}|{0,-20}|", "********************"));
         }
         public void UpdateBankData(SQLiteConnection conn, SQLentry e)
         {
@@ -162,6 +169,20 @@ namespace ATM.Services
                 $"Blocked='{e.Blocked}', " +
                 $"PIN='{e.PIN}' WHERE Guid='{e.ClientID}';";
             command.ExecuteNonQuery();
+        }
+        public int GetTransactionCountToday(SQLiteConnection conn, string accnum)
+        {
+            int count = 0;
+            SQLiteDataReader reader;
+            SQLiteCommand command = conn.CreateCommand();
+            string timestamp = DateTime.Today.ToShortDateString();
+            command.CommandText = $"SELECT * FROM Transactions WHERE Account_number='{accnum}' AND Time LIKE'%{timestamp}%';";
+            reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                count++;
+            }
+            return count;
         }
     }
 }
