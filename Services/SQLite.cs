@@ -73,12 +73,12 @@ namespace ATM.Services
             if (content=="true") return false;
             else return true;
         }
-        public void DeleteData(SQLiteConnection conn, string table_name)
-        {
-            SQLiteCommand command = conn.CreateCommand();
-            command.CommandText = $"DELETE FROM {table_name}";
-            command.ExecuteNonQuery();
-        }
+        //public void DeleteData(SQLiteConnection conn, string table_name) // Just in case
+        //{
+        //    SQLiteCommand command = conn.CreateCommand();
+        //    command.CommandText = $"DELETE FROM {table_name}";
+        //    command.ExecuteNonQuery();
+        //}
         public void InsertBankData(SQLiteConnection conn, SQLentry e)
         {
             SQLiteCommand command = conn.CreateCommand();
@@ -99,7 +99,7 @@ namespace ATM.Services
         {
             SQLiteDataReader reader;
             SQLiteCommand command = conn.CreateCommand();
-            command.CommandText = "SELECT Guid, Name, Last_name, Account_number, Balance, Card_number, Validity_date, Blocked, PIN FROM BankData";
+            command.CommandText = "SELECT * FROM BankData";
             reader = command.ExecuteReader();
             while (reader.Read())
             {

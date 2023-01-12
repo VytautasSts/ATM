@@ -16,8 +16,6 @@ namespace ATM
         {
             SQLite sqlite = new();
             Startup.Initiate(sqlite);
-            
-            HTMLGenerator.GenerateHTML();
             while (true)
             {
                 Console.Clear();
